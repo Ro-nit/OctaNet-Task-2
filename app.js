@@ -1,39 +1,53 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const taskForm = document.getElementById('task-form');
-    const taskInput = document.getElementById('task-input');
-    const taskList = document.getElementById('task-list');
+const taskInput = document.getElementById('task-input');
+const addTaskButton = document.getElementById('add-task-button');
+const taskList = document.getElementById('task-list');
 
-    taskForm.addEventListener('submit', addTask);
-    taskList.addEventListener('click', manageTask);
-
-    function addTask(e) {
-        e.preventDefault();
-
-        const taskText = taskInput.value;
-        const li = document.createElement('li');
-        li.appendChild(document.createTextNode(taskText));
-
-        const editBtn = document.createElement('button');
-        editBtn.appendChild(document.createTextNode('Edit'));
-        li.appendChild(editBtn);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.appendChild(document.createTextNode('Delete'));
-        li.appendChild(deleteBtn);
-
-        taskList.appendChild(li);
-
-        taskInput.value = '';
+function addTask() {
+    const taskText = taskInput.value.trim();
+    if (taskText === "") {
+        alert("Task cannot be empty!");
+        return;
     }
 
-    function manageTask(e) {
-        if (e.target.textContent === 'Delete') {
-            e.target.parentElement.remove();
-        } else if (e.target.textContent === 'Edit') {
-            const newText = prompt('Edit your task', e.target.parentElement.firstChild.textContent);
-            if (newText) {
-                e.target.parentElement.firstChild.textContent = newText;
-            }
-        }
+    const taskItem = document.createElement('li');
+    taskItem.classList.add('task-item');
+    taskItem.innerHTML = `
+        <span>${taskText}</span>
+        <div class="task-buttons">
+            <button class="edit-button">Edit</button>
+            <button class="delete-button">Delete</button>
+        </div>
+    `;
+
+    const editButton = taskItem.querySelector('.edit-button');
+    const deleteButton = taskItem.querySelector('.delete-button');
+
+    editButton.addEventListener('click', () => editTask(taskItem));
+    deleteButton.addEventListener('click', () => deleteTask(taskItem));
+
+    taskList.appendChild(taskItem);
+
+    taskInput.value = "";
+}
+
+function editTask(taskItem) {
+    const taskText = taskItem.querySelector('span').innerText;
+    const newTaskText = prompt("Edit your task:", taskText);
+    if (newTaskText !== null && newTaskText.trim() !== "") {
+        taskItem.querySelector('span').innerText = newTaskText.trim();
+    }
+}
+
+function deleteTask(taskItem) {
+    if (confirm("Are you sure you want to delete this task?")) {
+        taskItem.remove();
+    }
+}
+
+addTaskButton.addEventListener('click', addTask);
+
+taskInput.addEventListener('keypress', (e) => {
+    if (e.key === "Enter") {
+        addTask();
     }
 });
